@@ -1,6 +1,7 @@
 var express = require("express");
 var path = require("path")
 const app = express();
+var blog = require("./blog-service")
 
 var HTTP_PORT = process.env.PORT || 8080;
 
