@@ -16,7 +16,24 @@ app.get("/", function(req,res){
 })
 
 app.get("/about", function(req,res) {
-    res.sendFile(path.join(__dirname, "/views/about.html"))
+    res.sendFile(path.join(__dirname, "/views/about.html"));
 })
 
-app.listen(HTTP_PORT, onHttpStart);
+app.get("/blog", function(req,res) {
+    res.send("Beep-Boop, it seems that there are on posts right now.");
+})
+
+app.get("/posts", function(req,res) {
+    res.send("Beep-Boop, it seems that there are on posts right now.");
+})
+
+app.get("/categories", function(req,res) {
+    res.send("Beep-Boop, it seems that there are on posts right now.")
+})
+
+// for the pages that do not exist
+app.use((req,res) => {
+    res.status(404).send("the page that you are looking for does not exist!");
+})
+
+app.listen(HTTP_PORT, onHttpStart); 
