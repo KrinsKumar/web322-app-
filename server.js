@@ -1,7 +1,7 @@
-var express = require("express");
-var path = require("path")
+const express = require("express");
+const path = require("path")
 const app = express();
-var blog = require("./blog-service")
+const blog = require("./blog-service")
 
 var HTTP_PORT = process.env.PORT || 8080;
 
@@ -9,7 +9,7 @@ function onHttpStart() {
     console.log("Express http server is listening on 8080");
 }
 
-app.use(express.static("static"));
+app.use(express.static("public"));
 
 app.get("/", function(req,res){
     res.redirect("/about");
@@ -28,7 +28,9 @@ app.get("/posts", function(req,res) {
 })
 
 app.get("/categories", function(req,res) {
-    res.send("Beep-Boop, it seems that there are on posts right now.")
+    blog.getCategories()
+    .then((categories) => res.send(categories))
+    .catch(res.send("Beep-Boop, it seems that there are on posts right now."))
 })
 
 // for the pages that do not exist
@@ -36,4 +38,14 @@ app.use((req,res) => {
     res.status(404).send("the page that you are looking for does not exist!");
 })
 
-app.listen(HTTP_PORT, onHttpStart); 
+blog.initialize()
+.then(() => {
+    app.listen(HTTP_PORT, onHttpStart)
+    //console.log(1);
+    //console.log(blog.getAllPosts());
+    //console.log(blog.getCategories());
+})
+.catch((err) => {
+    console.log(err);
+    console.log(blog.getAllPosts())
+}); 
