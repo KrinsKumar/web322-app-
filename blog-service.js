@@ -17,9 +17,7 @@ module.exports.initialize = function() {
                     rej(err + 'Cannot Parse posts.json');
                 }
             }
-            console.log(posts[0])
         });
-        console.log(posts[0])
         // used to load the categories.json file
         fs.readFile('data/categories.json', 'utf8', (err, data) => {
             if (err) {

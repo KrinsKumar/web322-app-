@@ -41,11 +41,7 @@ app.use((req,res) => {
 blog.initialize()
 .then(() => {
     app.listen(HTTP_PORT, onHttpStart)
-    //console.log(1);
-    //console.log(blog.getAllPosts());
-    //console.log(blog.getCategories());
 })
 .catch((err) => {
     console.log(err);
-    console.log(blog.getAllPosts())
 }); 
