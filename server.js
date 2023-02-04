@@ -20,32 +20,44 @@ app.get("/about", function(req,res) {
 })
 
 app.get("/blog", function(req,res) {
-    res.send("Beep-Boop, it seems that there are on posts right now.");
+    blog.getPublishedPosts()
+    .then((posts) => res.json(posts))
+    .catch((err) => {
+        res.send("Beep-Boop, it seems that there are on posts right now.<br>" + 
+        '<a href="/about">Go Back</a>');
+        console.log(err);
+    })
 })
 
 app.get("/posts", function(req,res) {
-    res.send("Beep-Boop, it seems that there are on posts right now.");
+    blog.getAllPosts()
+    .then((allPosts) => res.json(allPosts))
+    .catch((err) => {
+        res.send("Beep-Boop, it seems that there are on posts right now.<br>" + 
+        '<a href="/about">Go Back</a>')
+        console.log(err);
+    })
 })
 
 app.get("/categories", function(req,res) {
     blog.getCategories()
-    .then((categories) => res.send(categories))
-    .catch(res.send("Beep-Boop, it seems that there are on posts right now."))
+    .then((categories) => res.json(categories))
+    .catch((err) => {
+        res.send("Beep-Boop, it seems that there are on posts right now.");
+        console.log(err);
+    })
 })
 
 // for the pages that do not exist
 app.use((req,res) => {
-    res.status(404).send("the page that you are looking for does not exist!");
+    res.status(404).send("the page that you are looking for does not exist!<br>" + 
+    '<a href="/about">Go to the main Page</a>');
 })
 
 blog.initialize()
 .then(() => {
     app.listen(HTTP_PORT, onHttpStart)
-    //console.log(1);
-    //console.log(blog.getAllPosts());
-    //console.log(blog.getCategories());
 })
 .catch((err) => {
     console.log(err);
-    console.log(blog.getAllPosts())
 }); 

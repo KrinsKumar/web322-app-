@@ -1,6 +1,6 @@
 const fs = require("fs"); 
 
-var posts = [1];
+var posts = [];
 var categories = [];
 
 module.exports.initialize = function() {
@@ -12,29 +12,25 @@ module.exports.initialize = function() {
             } else {
                 try{
                     posts = JSON.parse(data);
-                    //console.log(posts)
+
+                    fs.readFile('data/categories.json', 'utf8', (err, data) => {
+                        if (err) {
+                            rej(err + 'Cannot read categories.json');
+                        } else {
+                            try{
+                                categories = JSON.parse(data);
+                                res();
+                            } catch (err) {
+                                rej(err + 'Cannot parse categories.json');
+                            }
+                        }
+                    });
+                    
                 } catch (err) {
                     rej(err + 'Cannot Parse posts.json');
                 }
             }
-            console.log(posts[0])
         });
-        console.log(posts[0])
-        // used to load the categories.json file
-        fs.readFile('data/categories.json', 'utf8', (err, data) => {
-            if (err) {
-                rej(err + 'Cannot read categories.json');
-            } else {
-                try{
-                    categories = JSON.parse(data);
-                } catch (err) {
-                    rej(err + 'Cannot parse categories.json');
-                }
-            }
-        });
-
-        // if the files were read successfully
-        res();
     });
 }
 
