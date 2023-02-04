@@ -31,6 +31,24 @@ module.exports.initialize = function() {
                 }
             }
         });
+<<<<<<< HEAD
+=======
+        // used to load the categories.json file
+        fs.readFile('data/categories.json', 'utf8', (err, data) => {
+            if (err) {
+                rej(err + 'Cannot read categories.json');
+            } else {
+                try{
+                    categories = JSON.parse(data);
+                } catch (err) {
+                    rej(err + 'Cannot parse categories.json');
+                }
+            }
+        });
+
+        // if the files were read successfully
+        res();
+>>>>>>> 0383c1575e1b2fcc2111a5cc3676ee9ec8f9ce7c
     });
 }
 
