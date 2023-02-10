@@ -2,6 +2,17 @@ const express = require("express");
 const path = require("path")
 const app = express();
 const blog = require("./blog-service")
+const multer = require("multer");
+const cloudinary = require('cloudinary').v2
+const streamifier = require('streamifier')
+
+cloudinary.config({
+    cloud_name: 'dmiu3kgsb',
+    api_key: '758865488423371',
+    api_secret: '6sE0m_d1rRyTQu0qp7gxf7EYquI',
+    secure: true
+});
+
 
 var HTTP_PORT = process.env.PORT || 8080;
 
@@ -46,6 +57,10 @@ app.get("/categories", function(req,res) {
         res.send("Beep-Boop, it seems that there are on posts right now.");
         console.log(err);
     })
+})
+
+app.get("/posts/add", function(req,res) {
+    res.sendFile(path.join(__dirname, "/views/addPosts.html"));
 })
 
 // for the pages that do not exist

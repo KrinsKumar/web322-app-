@@ -1,0 +1,11 @@
+:root {
+    color-scheme: dark;
+}
+
+#featureImage,
+#title,
+#body,
+#category {
+    background-color: #444950;
+    color: #c8c8c8;
+}
