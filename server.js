@@ -42,11 +42,37 @@ app.get("/blog", function(req,res) {
 })
 
 app.get("/posts", function(req,res) {
-    blog.getAllPosts()
-    .then((allPosts) => res.json(allPosts))
+
+    if (req.query.category) {
+        blog.getPostsByCategory(req.query.category)
+        .then((posts) =>  res.json(posts))
+        .catch((err) => {
+            res.send("Looks like no post exist here")
+            console.log(err);
+        })
+    } else if (req.query.minDate) {
+        blog.getPostsByMinDate(req.query.minDate)
+        .then((posts) =>  res.json(posts))
+        .catch((err) => {
+            res.send("Looks like no post exist here");
+            console.log(err);
+        })
+    } else {
+        blog.getAllPosts()
+        .then((allPosts) => res.json(allPosts))
+        .catch((err) => {
+            res.send("Beep-Boop, it seems that there are on posts right now.<br>" + 
+            '<a href="/about">Go Back</a>')
+            console.log(err);
+        })
+    }
+})
+
+app.get("/post/value", function(req, res) {
+    blog.getPostById(req.value)
+    .then((post) => res.json(post))
     .catch((err) => {
-        res.send("Beep-Boop, it seems that there are on posts right now.<br>" + 
-        '<a href="/about">Go Back</a>')
+        res.send("No post with this ID found");
         console.log(err);
     })
 })
@@ -99,7 +125,6 @@ app.post("/posts/add", upload.single("featureImage"), function(req, res) {
         blog.addPost(req.body).then(() => {
             res.redirect("/posts")
         })
-        // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
     } 
     
 })

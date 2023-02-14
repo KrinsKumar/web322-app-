@@ -88,3 +88,37 @@ module.exports.addPost = function(postData) {
         rej();
     })
 }
+
+module.exports.getPostsByCategory = (category) => {
+    return new Promise((res, rej) => {
+        if (posts.length === 0) {
+            res(posts.filter((post) => post.id === category));
+        } else {
+            rej("No post found")
+        }
+    })
+}
+
+module.exports.getPostsByMinDate = (minDateStr) => {
+    return new Promise((res, rej) => {
+        if (posts.length === 0) {
+            res(posts.filter((post) => {
+                return new Date(post.postDate) >= new Date(minDateStr);
+            }));
+        } else {
+            rej("No post found")
+        }
+    })
+}
+
+module.exports.getPostsById = (id) => {
+    return new Promise((res, rej) => {
+        if (posts.length === 0) {
+            res(posts.filter((post) => {
+                return post.id = id;
+            }));
+        } else {
+            rej("No post found")
+        }
+    })
+}
