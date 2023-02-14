@@ -96,7 +96,9 @@ app.post("/posts/add", upload.single("featureImage"), function(req, res) {
      
     function processPost(imageUrl){
         req.body.featureImage = imageUrl;
-    
+        blog.addPost(req.body).then(() => {
+            res.redirect("/posts")
+        })
         // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
     } 
     

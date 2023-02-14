@@ -24,7 +24,6 @@ module.exports.initialize = function() {
             } else {
                 try{
                     posts = JSON.parse(data);
-
                     fs.readFile('data/categories.json', 'utf8', (err, data) => {
                         if (err) {
                             rej(err + 'Cannot read categories.json');
@@ -37,7 +36,6 @@ module.exports.initialize = function() {
                             }
                         }
                     });
-                    
                 } catch (err) {
                     rej(err + 'Cannot Parse posts.json');
                 }
@@ -75,5 +73,18 @@ module.exports.getCategories = function() {
         } else {
             res(categories);
         }
+    })
+}
+
+module.exports.addPost = function(postData) {
+    return new Promise((res, rej) => {
+        if(postData) {
+            if (typeof(postData.published) === undefined)  postData.published = false;
+            else postData.published = true;
+            postData.id = posts.length + 1;
+            posts.push(postData);
+            res();
+        }
+        rej();
     })
 }
