@@ -13,6 +13,7 @@ cloudinary.config({
     secure: true
 });
 
+const upload = multer();
 
 var HTTP_PORT = process.env.PORT || 8080;
 
@@ -61,6 +62,44 @@ app.get("/categories", function(req,res) {
 
 app.get("/posts/add", function(req,res) {
     res.sendFile(path.join(__dirname, "/views/addPosts.html"));
+})
+
+app.post("/posts/add", upload.single("featureImage"), function(req, res) {
+    if(req.file){
+        let streamUpload = (req) => {
+            return new Promise((resolve, reject) => {
+                let stream = cloudinary.uploader.upload_stream(
+                    (error, result) => {
+                        if (result) {
+                            resolve(result);
+                        } else {
+                            reject(error);
+                        }
+                    }
+                );
+                streamifier.createReadStream(req.file.buffer).pipe(stream);
+            });
+        };
+    
+        async function upload(req) {
+            let result = await streamUpload(req);
+            console.log(result);
+            return result;
+        }
+    
+        upload(req).then((uploaded)=>{
+            processPost(uploaded.url);
+        });
+    }else{
+        processPost("");
+    }
+     
+    function processPost(imageUrl){
+        req.body.featureImage = imageUrl;
+    
+        // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
+    } 
+    
 })
 
 // for the pages that do not exist
