@@ -92,9 +92,9 @@ module.exports.addPost = function(postData) {
 module.exports.getPostsByCategory = (category) => {
     return new Promise((res, rej) => {
         if (posts.length === 0) {
-            res(posts.filter((post) => post.id === category));
-        } else {
             rej("No post found")
+        } else {
+            res(posts.filter(post => post.category == category));
         }
     })
 }
