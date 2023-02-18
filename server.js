@@ -134,9 +134,14 @@ app.post("/posts/add", upload.single("featureImage"), function(req, res) {
      
     function processPost(imageUrl){
         req.body.featureImage = imageUrl;
-        blog.addPost(req.body).then(() => {
+        blog.addPost(req.body)
+        .then(() => {
             res.redirect("/posts")
         })
+        .catch((err) => {
+            console.log(err)
+            res.send("Failed to add the new Post try again");
+        });
     } 
     
 })
