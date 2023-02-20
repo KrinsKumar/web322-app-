@@ -25,6 +25,9 @@ cloudinary.config({
     secure: true
 });
 
+
+var posts = [];
+var categories = [];
 const upload = multer();
 
 var HTTP_PORT = process.env.PORT || 8080;

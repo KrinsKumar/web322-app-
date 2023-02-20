@@ -12,8 +12,6 @@
 ********************************************************************************/ 
 const fs = require("fs"); 
 
-var posts = [];
-var categories = [];
 
 module.exports.initialize = function() {
     return new Promise((res, rej) => {
@@ -60,8 +58,7 @@ module.exports.getPublishedPosts = function() {
         if (posts.length === 0) {
             rej("No posts found");
         } else {
-            posts = posts.filter(post => {return post.published;})
-            res(posts);
+            res(posts.filter(post => post.published));
         }
     })
 }
