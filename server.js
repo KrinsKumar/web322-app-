@@ -17,7 +17,9 @@ const blog = require("./blog-service")
 const multer = require("multer");
 const cloudinary = require('cloudinary').v2
 const streamifier = require('streamifier')
+const exphbs = require("express-handlebars");
 
+//Setting up the server-----------------------------------------------------------
 cloudinary.config({
     cloud_name: 'dmiu3kgsb',
     api_key: '758865488423371',
@@ -25,25 +27,53 @@ cloudinary.config({
     secure: true
 });
 
+app.engine('.hbs', exphbs.engine({ extname: '.hbs',
+    helpers: {
+        navLink: function(url, options){
+            return '<li' + 
+                ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
+                '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+        },
+        equal: function (lvalue, rvalue, options) {
+            if (arguments.length < 3)
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            } else {
+                return options.fn(this);
+            }
+        }
+    }})
+);
+app.set('view engine', '.hbs');
 
-var posts = [];
-var categories = [];
 const upload = multer();
 
 var HTTP_PORT = process.env.PORT || 8080;
+
+app.use(express.static("public"));
+
+app.use(function(req,res,next){
+    let route = req.path.substring(1);
+    app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
+    app.locals.viewingCategory = req.query.category;
+    next();
+});
+//---------------------------------------------------------------------------------
 
 function onHttpStart() {
     console.log("Express http server is listening on 8080");
 }
 
-app.use(express.static("public"));
 
 app.get("/", function(req,res){
     res.redirect("/about");
 })
 
 app.get("/about", function(req,res) {
-    res.sendFile(path.join(__dirname, "/views/about.html"));
+    res.render('about', {
+        layout: 'main'
+    })
 })
 
 app.get("/blog", function(req,res) {
@@ -57,34 +87,41 @@ app.get("/blog", function(req,res) {
 })
 
 app.get("/posts", function(req,res) {
-
     if (req.query.category) {
         blog.getPostsByCategory(req.query.category)
-        .then((posts) =>  res.json(posts))
-        .catch((err) => {
-            res.send("Looks like no post exist here")
-            console.log(err);
-        })
+        .then((postsData) =>  res.render('posts', {
+            layout: 'main',
+            data: postsData
+        }))
+        .catch((err) => res.render('posts', {
+            layout: 'main',
+            data: {message: err}
+        }))
     } else if (req.query.minDate) {
         blog.getPostsByMinDate(req.query.minDate)
-        .then((posts) =>  res.json(posts))
-        .catch((err) => {
-            res.send("Looks like no post exist here");
-            console.log(err);
-        })
+        .then((postsData) =>  res.render('posts', {
+            layout: 'main',
+            data: postsData
+        }))
+        .catch((err) => res.render('posts', {
+            layout: 'main',
+            data: {message: err}
+        }))
     } else {
         blog.getAllPosts()
-        .then((allPosts) => res.json(allPosts))
-        .catch((err) => {
-            res.send("Beep-Boop, it seems that there are on posts right now.<br>" + 
-            '<a href="/about">Go Back</a>')
-            console.log(err);
-        })
+        .then((allPosts) => res.render('posts', {
+            layout: 'main',
+            data: allPosts
+        }))
+        .catch((err) => res.render('posts', {
+            layout: 'main',
+            data: {message: err}
+        }))
     }
 })
 
-app.get("/post/value", function(req, res) {
-    blog.getPostById(req.value)
+app.get("/post/:value", function(req, res) {
+    blog.getPostById(req.params.value)
     .then((post) => res.json(post))
     .catch((err) => {
         res.send("No post with this ID found");
@@ -94,15 +131,20 @@ app.get("/post/value", function(req, res) {
 
 app.get("/categories", function(req,res) {
     blog.getCategories()
-    .then((categories) => res.json(categories))
-    .catch((err) => {
-        res.send("Beep-Boop, it seems that there are on posts right now.");
-        console.log(err);
-    })
+    .then((categoriesData) => res.render('categories', {
+        layout: 'main',
+        data: categoriesData
+    }))
+    .catch((err) => res.render('posts', {
+        layout: 'main',
+        data: {message: err}
+    }))
 })
 
 app.get("/posts/add", function(req,res) {
-    res.sendFile(path.join(__dirname, "/views/addPosts.html"));
+    res.render('addPosts', {
+        layout: 'main'
+    })
 })
 
 app.post("/posts/add", upload.single("featureImage"), function(req, res) {
@@ -162,3 +204,4 @@ blog.initialize()
 .catch((err) => {
     console.log(err);
 }); 
+  

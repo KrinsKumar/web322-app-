@@ -88,7 +88,7 @@ module.exports.getPostsByCategory = (category) => {
 
 module.exports.getPostsByMinDate = (minDateStr) => {
     return new Promise((res, rej) => {
-        if (posts.length === 0) {
+        if (posts.length !== 0) {
             res(posts.filter((post) => {
                 return new Date(post.postDate) >= new Date(minDateStr);
             }));
@@ -98,14 +98,22 @@ module.exports.getPostsByMinDate = (minDateStr) => {
     })
 }
 
-module.exports.getPostsById = (id) => {
+module.exports.getPostById = (id) => {
     return new Promise((res, rej) => {
-        if (posts.length === 0) {
-            res(posts.filter((post) => {
-                return post.id = id;
-            }));
+        if (posts.length !== 0) {
+            res(posts.filter((post) => { return post.id == id}));
         } else {
             rej("No post found")
+        }
+    })
+}
+
+module.exports.getPublishedPostsByCategory = (category) => {
+    return new Promise((res, rej) => {
+        if (posts.length === 0) {
+            rej("No post found")
+        } else {
+            res(posts.filter(post => post.category == category && post.published));
         }
     })
 }
