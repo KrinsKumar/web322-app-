@@ -1,17 +1,7 @@
-/*********************************************************************************
-*  WEB322 – Assignment 03
-*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
-*  (including 3rd party web sites) or distributed to other students.
-* 
-*  Name: Krinskumar Vaghasia Student ID: 169722212 Date: 15th Feb 2023
-*
-*  Cyclic Web App URL: https://dark-ruby-rhinoceros-cap.cyclic.app
-*
-*  GitHub Repository URL: https://github.com/KrinsKumar/web322-app-
-*
-********************************************************************************/ 
 const fs = require("fs"); 
 
+var posts = [];
+var categories = [];
 
 module.exports.initialize = function() {
     return new Promise((res, rej) => {
