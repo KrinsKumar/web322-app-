@@ -19,7 +19,6 @@
                             <th>Date</th>
                             <th>Category</th>
                             <th>Published</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     {{#each data}}
@@ -32,9 +31,6 @@
                                     <a href="/posts?category={{category}}">{{category}}</a>
                                     </td>
                                 <td>{{published}}</td>
-                                <td>
-                                    <a href="/post/{{id}}" class="btn btn-primary">View</a>
-                                </td>
                             </tr>
                         </tbody>
                     {{/each}}
