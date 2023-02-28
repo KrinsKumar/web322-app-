@@ -102,7 +102,7 @@ module.exports.getPostsByMinDate = (minDateStr) => {
 module.exports.getPostById = (id) => {
     return new Promise((res, rej) => {
         if (posts.length !== 0) {
-            res(posts.filter((post) => { return post.id == id}));
+            res(posts.filter((post) => { return post.id == id})[0]);
         } else {
             rej("No post found")
         }

@@ -71,7 +71,7 @@ function onHttpStart() {
 
 
 app.get("/", function(req,res){
-    res.redirect("/about");
+    res.redirect("/blog");
 })
 
 app.get("/about", function(req,res) {
@@ -118,29 +118,29 @@ app.get('/blog/:id', async (req, res) => {
         let posts = [];
 
         if(req.query.category){
-            posts = await blogData.getPublishedPostsByCategory(req.query.category);
+            posts = await blog.getPublishedPostsByCategory(req.query.category);
         }else{
-            posts = await blogData.getPublishedPosts();
+            posts = await blog.getPublishedPosts();
         }
 
         posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
         viewData.posts = posts;
 
     }catch(err){
-        viewData.message = "no results";
+        viewData.message = "No Results 1";
     }
 
     try{
-        viewData.post = await blogData.getPostById(req.params.id);
+        viewData.post = await blog.getPostById(req.params.id);
     }catch(err){
-        viewData.message = "no results"; 
+        viewData.message = "No Results 2"; 
     }
 
     try{
-        let categories = await blogData.getCategories();
+        let categories = await blog.getCategories();
         viewData.categories = categories;
     }catch(err){
-        viewData.categoriesMessage = "no results"
+        viewData.categoriesMessage = "No Results 3"
     }
 
     res.render("blog", {data: viewData})
@@ -244,8 +244,9 @@ app.post("/posts/add", upload.single("featureImage"), function(req, res) {
             res.redirect("/posts")
         })
         .catch((err) => {
-            console.log(err)
-            res.send("Failed to add the new Post try again");
+            res.render('404', {
+              layout: 'main'  
+            })
         });
     } 
     
@@ -253,8 +254,9 @@ app.post("/posts/add", upload.single("featureImage"), function(req, res) {
 
 // for the pages that do not exist
 app.use((req,res) => {
-    res.status(404).send("the page that you are looking for does not exist!<br>" + 
-    '<a href="/about">Go to the main Page</a>');
+    res.render('404', {
+      layout: 'main'  
+    })
 })
 
 blog.initialize()
