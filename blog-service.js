@@ -69,6 +69,7 @@ module.exports.addPost = function(postData) {
             if (typeof(postData.published) === undefined)  postData.published = false;
             else postData.published = true;
             postData.id = posts.length + 1;
+            postData.postDate = new Date();
             posts.push(postData);
             res();
         }

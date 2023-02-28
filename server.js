@@ -18,6 +18,7 @@ const multer = require("multer");
 const cloudinary = require('cloudinary').v2
 const streamifier = require('streamifier')
 const exphbs = require("express-handlebars");
+const stripJs = require('strip-js');
 
 //Setting up the server-----------------------------------------------------------
 cloudinary.config({
@@ -42,6 +43,9 @@ app.engine('.hbs', exphbs.engine({ extname: '.hbs',
             } else {
                 return options.fn(this);
             }
+        },
+        safeHTML: function(context){
+            return stripJs(context);
         }
     }})
 );
@@ -76,15 +80,71 @@ app.get("/about", function(req,res) {
     })
 })
 
-app.get("/blog", function(req,res) {
-    blog.getPublishedPosts()
-    .then((posts) => res.json(posts))
-    .catch((err) => {
-        res.send("Beep-Boop, it seems that there are on posts right now.<br>" + 
-        '<a href="/about">Go Back</a>');
-        console.log(err);
-    })
-})
+app.get('/blog', async (req, res) => {
+    let viewData = {};
+    try{
+        let posts = [];
+        if(req.query.category){
+            posts = await blog.getPublishedPostsByCategory(req.query.category);
+        }else{
+            posts = await blog.getPublishedPosts();
+        }
+
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+        let post = posts[0]; 
+        viewData.posts = posts;
+        viewData.post = post;
+
+    }catch(err){
+        viewData.message = "no results";
+    }
+
+    try{
+        // Obtain the full list of "categories"
+        let categories = await blog.getCategories();
+        // store the "categories" data in the viewData object (to be passed to the view)
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = "no results"
+    }
+
+    // render the "blog" view with all of the data (viewData)
+    res.render("blog", {data: viewData})
+});
+
+app.get('/blog/:id', async (req, res) => {
+    let viewData = {};
+    try{
+        let posts = [];
+
+        if(req.query.category){
+            posts = await blogData.getPublishedPostsByCategory(req.query.category);
+        }else{
+            posts = await blogData.getPublishedPosts();
+        }
+
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+        viewData.posts = posts;
+
+    }catch(err){
+        viewData.message = "no results";
+    }
+
+    try{
+        viewData.post = await blogData.getPostById(req.params.id);
+    }catch(err){
+        viewData.message = "no results"; 
+    }
+
+    try{
+        let categories = await blogData.getCategories();
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = "no results"
+    }
+
+    res.render("blog", {data: viewData})
+});
 
 app.get("/posts", function(req,res) {
     if (req.query.category) {
