@@ -46,6 +46,12 @@ app.engine('.hbs', exphbs.engine({ extname: '.hbs',
         },
         safeHTML: function(context){
             return stripJs(context);
+        },
+        formatDate: function(dateObj){
+            let year = dateObj.getFullYear();
+            let month = (dateObj.getMonth() + 1).toString();
+            let day = dateObj.getDate().toString();
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2,'0')}`;
         }
     }})
 );
@@ -147,37 +153,50 @@ app.get('/blog/:id', async (req, res) => {
 });
 
 app.get("/posts", function(req,res) {
-    if (req.query.category) {
-        blog.getPostsByCategory(req.query.category)
-        .then((postsData) =>  res.render('posts', {
-            layout: 'main',
-            data: postsData
-        }))
-        .catch((err) => res.render('posts', {
-            layout: 'main',
-            data: {message: err}
-        }))
-    } else if (req.query.minDate) {
-        blog.getPostsByMinDate(req.query.minDate)
-        .then((postsData) =>  res.render('posts', {
-            layout: 'main',
-            data: postsData
-        }))
-        .catch((err) => res.render('posts', {
-            layout: 'main',
-            data: {message: err}
-        }))
-    } else {
-        blog.getAllPosts()
-        .then((allPosts) => res.render('posts', {
-            layout: 'main',
-            data: allPosts
-        }))
-        .catch((err) => res.render('posts', {
-            layout: 'main',
-            data: {message: err}
-        }))
-    }
+
+    blog.getAllPosts()
+    .then((allPosts) => {
+        if (allPosts.length == 0) {
+            postsPresent = false;
+            res.render('posts', {
+                layout: 'main',
+                data: {message: "No posts found"}
+            })
+        } else {
+            if (req.query.category) {
+                blog.getPostsByCategory(req.query.category)
+                .then((postsData) =>  res.render('posts', {
+                    layout: 'main',
+                    data: postsData
+                }))
+                .catch((err) => res.render('posts', {
+                    layout: 'main',
+                    data: {message: err}
+                }))
+            } else if (req.query.minDate) {
+                blog.getPostsByMinDate(req.query.minDate)
+                .then((postsData) =>  res.render('posts', {
+                    layout: 'main',
+                    data: postsData
+                }))
+                .catch((err) => res.render('posts', {
+                    layout: 'main',
+                    data: {message: err}
+                }))
+            } else {
+                blog.getAllPosts()
+                .then((allPosts) => res.render('posts', {
+                    layout: 'main',
+                    data: allPosts
+                }))
+                .catch((err) => res.render('posts', {
+                    layout: 'main',
+                    data: {message: err}
+                }))
+            }
+        }
+    })
+
 })
 
 app.get("/post/:value", function(req, res) {
@@ -191,10 +210,20 @@ app.get("/post/:value", function(req, res) {
 
 app.get("/categories", function(req,res) {
     blog.getCategories()
-    .then((categoriesData) => res.render('categories', {
-        layout: 'main',
-        data: categoriesData
-    }))
+    .then((categoriesData) => {
+            if (categoriesData.length == 0) {
+                res.render('categories', {
+                    layout: 'main',
+                    data: {message: "No categories found"}
+                })
+            } else {
+                res.render('categories', {
+                layout: 'main',
+                data: categoriesData
+                })
+            }
+        }
+    )
     .catch((err) => res.render('posts', {
         layout: 'main',
         data: {message: err}

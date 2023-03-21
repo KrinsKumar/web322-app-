@@ -1,120 +1,140 @@
-const fs = require("fs"); 
+const Sequelize = require('sequelize');
+const {gte} = Sequelize.Op;
 
-var posts = [];
-var categories = [];
+var sequelize = new Sequelize('eruaoruu', 'eruaoruu', 'ppdIVQ9SuRbPIpD58MqRNOoKkaGayswT', {
+    host: 'isilo.db.elephantsql.com',
+    dialect: 'postgres',
+    port: 5432,
+    dialectOptions: {
+        ssl: { rejectUnauthorized: false }
+    },
+    query: { raw: true }
+})
+
+var Post = sequelize.define('Post', {
+    body: Sequelize.TEXT,
+    title: Sequelize.STRING,
+    postDate: Sequelize.DATE,
+    featuredImage: Sequelize.STRING,
+    published: Sequelize.BOOLEAN
+});
+
+var Category = sequelize.define('Category', {
+    category: Sequelize.STRING
+});
+
+Post.belongsTo(Category, {foreignKey: 'category'});
 
 module.exports.initialize = function() {
     return new Promise((res, rej) => {
-        // used to load the views.json file
-        fs.readFile('data/posts.json', 'utf8', (err, data) => {
-            if (err) {
-                rej(err + 'Cannot read posts.json');
-            } else {
-                try{
-                    posts = JSON.parse(data);
-                    fs.readFile('data/categories.json', 'utf8', (err, data) => {
-                        if (err) {
-                            rej(err + 'Cannot read categories.json');
-                        } else {
-                            try{
-                                categories = JSON.parse(data);
-                                res();
-                            } catch (err) {
-                                rej(err + 'Cannot parse categories.json');
-                            }
-                        }
-                    });
-                } catch (err) {
-                    rej(err + 'Cannot Parse posts.json');
-                }
-            }
-        });
+        sequelize.sync().then(() => {
+            res();
+        }).catch((err) => {
+            rej("unable to sync the database" + err);
+        })
     });
 }
 
 module.exports.getAllPosts = function() {
-
     return new Promise((res, rej) => {
-        if (posts.length === 0) {
-            rej("No posts found");
-        } else {
-            res(posts);
-        }
-    })
+        Post.findAll().then((post) => {
+            res(post);
+        }).catch((err) => {
+            rej("no results returned" + err);
+        })
+    });
 }
 
 module.exports.getPublishedPosts = function() {
     return new Promise((res, rej) => {
-        if (posts.length === 0) {
-            rej("No posts found");
-        } else {
-            res(posts.filter(post => post.published));
-        }
-    })
+        post.findAll({
+            where: {published: true}
+        }).then((post) => {
+            res(post);
+        }).catch((err) => {
+            rej("no results returned" + err);
+        }) 
+    });
 }
 
 module.exports.getCategories = function() {
     return new Promise((res, rej) => {
-        if (categories.length === 0) {
-            rej("No categories found");
-        } else {
-            res(categories);
-        }
-    })
+        Category.findAll().then((category) => {
+            res(category);
+        }).catch((err) => {
+            rej("no results returned" + err);
+        })
+    });
 }
 
 module.exports.addPost = function(postData) {
     return new Promise((res, rej) => {
-        if(postData) {
-            if (typeof(postData.published) === undefined)  postData.published = false;
-            else postData.published = true;
-            postData.id = posts.length + 1;
-            postData.postDate = new Date();
-            posts.push(postData);
-            res();
+        postData.published = (postData.published) ? true : false;
+        for (let val in postData) {
+            if (postData[val] == "") {
+                postData[val] = null;
+            }
         }
-        rej();
-    })
+        postData.postDate = new Date();
+        Post.create({
+            title: postData.title,
+            body: postData.body,
+            postDate: postData.postDate,
+            featuredImage: postData.featuredImage,
+            published: postData.published,
+            category: postData.category
+        }).then(() => {
+            res('Post added');
+        }).catch((err) => {
+            rej("unable to add post" + err);
+        })
+    });
 }
 
-module.exports.getPostsByCategory = (category) => {
+module.exports.getPostsByCategory = (categoryy) => {
     return new Promise((res, rej) => {
-        if (posts.length === 0) {
-            rej("No post found")
-        } else {
-            res(posts.filter(post => post.category == category));
-        }
-    })
+        Post.findAll({
+            where: {category: categoryy}
+        }).then((post) => {
+            res(post);
+        }).catch((err) => {
+            rej("no results returned" + err);
+        })
+    });
 }
 
 module.exports.getPostsByMinDate = (minDateStr) => {
     return new Promise((res, rej) => {
-        if (posts.length !== 0) {
-            res(posts.filter((post) => {
-                return new Date(post.postDate) >= new Date(minDateStr);
-            }));
-        } else {
-            rej("No post found")
-        }
-    })
+        Post.findAll({
+            where: {[gte]: new Date(minDateStr)}
+        }).then((post) => {
+            res(post);
+        }).catch((err) => {
+            rej("no results returned" + err);
+        })
+    });
 }
 
-module.exports.getPostById = (id) => {
+module.exports.getPostById = (idd) => {
     return new Promise((res, rej) => {
-        if (posts.length !== 0) {
-            res(posts.filter((post) => { return post.id == id})[0]);
-        } else {
-            rej("No post found")
-        }
-    })
+        Post.findAll({
+            where: {id: idd}
+        }).then((post) => {
+            res(post[0]);
+        }).catch((err) => {
+            rej("no results returned" + err);
+        })
+    });
 }
 
 module.exports.getPublishedPostsByCategory = (category) => {
     return new Promise((res, rej) => {
-        if (posts.length === 0) {
-            rej("No post found")
-        } else {
-            res(posts.filter(post => post.category == category && post.published));
-        }
-    })
+        Post.findAll({
+            where: {category: category, published: true}
+        }).then((post) => {
+            res(post);
+        }).catch((err) => {
+            rej("no results returned" + err);
+        })
+    });
 }
