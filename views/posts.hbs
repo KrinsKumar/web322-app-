@@ -1,42 +1,42 @@
 <div class="row">
     <div class="col-md-12">
-        {{#if data.id}}
         <h2>Posts</h2>
+    	<a href="/posts/add" class="btn btn-success">Add Post</a>
         <hr />
-        <p>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>Title</th>
-                            <th>Date</th>
-                            <th>Category</th>
-                            <th>Published</th>
-                        </tr>
-                    </thead>
-                    {{#each data}}
-                        <tbody>
-                            <tr>
-                                <td>{{id}}</td>
-                                <td>{{title}}</td>
-                                <td>{{#formatDate postDate}}{{/formatDate}}</td>
-                                <td>
-                                    <a href="/posts?category={{category}}">{{category}}</a>
-                                    </td>
-                                <td>{{published}}</td>
-                            </tr>
-                        </tbody>
-                    {{/each}}
-                </table>
+        {{#if data.message}}
+            <div >
+                {{data.message}}
             </div>
-        </p>
         {{else}}
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <strong>{{data.message}}</strong>
-            </div>
-        </div>
+                <p>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Title</th>
+                                    <th>Date</th>
+                                    <th>Category</th>
+                                    <th>Published</th>
+                                </tr>
+                            </thead>
+                            {{#each data}}
+                                <tbody>
+                                    <tr>
+                                        <td>{{id}}</td>
+                                        <td>{{title}}</td>
+                                        <td>{{#formatDate postDate}}{{/formatDate}}</td>
+                                        <td>
+                                            <a href="/posts?category={{category}}">{{category}}</a>
+                                            </td>
+                                        <td>{{published}}</td>
+                                        <td><a href="post/delete/{{id}}" class="btn btn-danger">Delete</a></td>
+                                    </tr>
+                                </tbody>
+                            {{/each}}
+                        </table>
+                    </div>
+                </p>
         {{/if}}
     </div>
 </div>

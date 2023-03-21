@@ -1,8 +1,14 @@
 <div class="row ">
     <div class="col-md-12">
-        {{#if data.id}}
-            <h2>Categories</h2>
-            <hr />
+        <h2>Categories</h2>
+        <a href="/categories/add" class="btn btn-success">Add Category</a>
+        <hr />
+        {{#if data.message}}
+            <div >
+                {{data.message}}
+            </div>
+        {{else}}
+            <br><br>
             <div class="table-responsive text-center">
                 <table class="table table-striped">
                     <thead>
@@ -15,17 +21,12 @@
                         <tbody>
                             <tr>
                                 <td><a href="posts?category={{id}}">{{id}}</a></td>
-                                <td>{{category}}</td></td>
+                                <td><a href="posts?category={{id}}">{{category}}</a></td>
+                                <td><a href="category/delete/{{id}}" class="btn btn-danger">Remove</a></td>
                             </tr>
                         </tbody>
                     {{/each}}
                 </table>
-            </div>
-        {{else}}
-            <div class="row">
-                <div class="col-md-12 text-center">
-                    <strong>{{data.message}}</strong>
-                </div>
             </div>
         {{/if}}
     </div>

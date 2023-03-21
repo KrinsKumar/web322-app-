@@ -47,7 +47,7 @@ module.exports.getAllPosts = function() {
 
 module.exports.getPublishedPosts = function() {
     return new Promise((res, rej) => {
-        post.findAll({
+        Post.findAll({
             where: {published: true}
         }).then((post) => {
             res(post);
@@ -127,14 +127,53 @@ module.exports.getPostById = (idd) => {
     });
 }
 
-module.exports.getPublishedPostsByCategory = (category) => {
+module.exports.getPublishedPostsByCategory = (categoryy) => {
     return new Promise((res, rej) => {
         Post.findAll({
-            where: {category: category, published: true}
+            where: {category: categoryy, published: true}
         }).then((post) => {
             res(post);
         }).catch((err) => {
             rej("no results returned" + err);
+        })
+    });
+}
+
+module.exports.addCategory = (categoryData) => {
+    return new Promise((res, rej) => {
+        if (categoryData.category == "") {
+            categoryData.category = null;
+        }
+        Category.create({
+            category: categoryData.category
+        }).then(() => {
+            res('Category added');
+        }).catch((err) => {
+            rej("unable to add category" + err);
+        })
+    });
+}
+
+module.exports.deleteCategoryById = (idd) => {
+    return new Promise((res, rej) => {
+        Category.destroy({
+            where: {id: idd}
+        }).then(() => {
+            res('Category deleted');
+        }).catch((err) => {
+            rej("unable to delete category" + err);
+        })
+    });
+}
+
+module.exports.deletePostById = (idd) => {
+    return new Promise((res, rej) => {
+        Post.destroy({
+            where: {id: idd}
+        }).then(() => {
+            res('Post deleted');
+        }).catch((err) => {
+            rej("unable to delete post" + err);
         })
     });
 }

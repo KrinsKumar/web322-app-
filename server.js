@@ -69,6 +69,8 @@ app.use(function(req,res,next){
     app.locals.viewingCategory = req.query.category;
     next();
 });
+
+app.use(express.urlencoded({ extended: true }));
 //---------------------------------------------------------------------------------
 
 function onHttpStart() {
@@ -95,9 +97,9 @@ app.get('/blog', async (req, res) => {
         }else{
             posts = await blog.getPublishedPosts();
         }
-
         posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
         let post = posts[0]; 
+        console.log(post.featuredImage);
         viewData.posts = posts;
         viewData.post = post;
 
@@ -211,12 +213,12 @@ app.get("/post/:value", function(req, res) {
 app.get("/categories", function(req,res) {
     blog.getCategories()
     .then((categoriesData) => {
-            if (categoriesData.length == 0) {
-                res.render('categories', {
-                    layout: 'main',
-                    data: {message: "No categories found"}
-                })
-            } else {
+        if (categoriesData.length == 0) {
+            res.render('categories', {
+                layout: 'main',
+                data: {message: "No categories found"}
+            })
+        } else {
                 res.render('categories', {
                 layout: 'main',
                 data: categoriesData
@@ -231,8 +233,16 @@ app.get("/categories", function(req,res) {
 })
 
 app.get("/posts/add", function(req,res) {
-    res.render('addPosts', {
-        layout: 'main'
+    blog.getCategories().then((categories) => {
+        res.render('addPosts', {
+            layout: 'main',
+            data: categories
+        })
+    }).catch((err) => {
+        res.render('addPosts', {
+            layout: 'main',
+            data: []
+        })
     })
 })
 
@@ -267,7 +277,8 @@ app.post("/posts/add", upload.single("featureImage"), function(req, res) {
     }
      
     function processPost(imageUrl){
-        req.body.featureImage = imageUrl;
+        console.log(imageUrl);
+        req.body.featuredImage = imageUrl;
         blog.addPost(req.body)
         .then(() => {
             res.redirect("/posts")
@@ -279,6 +290,44 @@ app.post("/posts/add", upload.single("featureImage"), function(req, res) {
         });
     } 
     
+})
+
+app.get("/categories/add", function(req,res) {
+    res.render('addCategory', {
+        layout: 'main'
+    })
+});
+
+app.post("/categories/add", function(req,res) {
+    blog.addCategory(req.body)
+    .then(() => {
+        res.redirect("/categories")
+    })
+    .catch((err) => {
+        res.render('404', {
+          layout: 'main'  
+        })
+    });
+});
+
+app.get('/category/delete/:id', function(req, res) {
+    blog.deleteCategoryById(req.params.id)
+    .then(() => {
+        res.redirect('/categories')
+    })
+    .catch((err) => {
+        res.status(500).send("Unable to Remove Category / Category not found");
+    });
+});
+
+app.get('/post/delete/:id', function(req, res) {
+    blog.deletePostById(req.params.id)
+    .then(() => {
+        res.redirect('/posts')
+    })
+    .catch((err) => {
+        res.status(500).send("Unable to Remove Post / Post not found");
+    });
 })
 
 // for the pages that do not exist
