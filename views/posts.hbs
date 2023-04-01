@@ -20,8 +20,8 @@
                                     <th>Published</th>
                                 </tr>
                             </thead>
-                            {{#each data}}
-                                <tbody>
+                            <tbody>
+                                {{#each data}}
                                     <tr>
                                         <td>{{id}}</td>
                                         <td>{{title}}</td>
@@ -32,8 +32,8 @@
                                         <td>{{published}}</td>
                                         <td><a href="post/delete/{{id}}" class="btn btn-danger">Delete</a></td>
                                     </tr>
-                                </tbody>
-                            {{/each}}
+                                {{/each}}
+                            </tbody>
                         </table>
                     </div>
                 </p>
